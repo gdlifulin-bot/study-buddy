@@ -46,33 +46,37 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
 }
 
-// ==================== 路由 ====================
-app.use('/api/plans', require('./routes/plans'));
-app.use('/api/checkins', require('./routes/checkins'));
-app.use('/api/upload', require('./routes/upload'));
-app.use('/api/config', require('./routes/config'));
-app.use('/api/ai', require('./routes/ai'));
-app.use('/api/reminders', require('./routes/reminders'));
-app.use('/api/partners', require('./routes/partners'));
-app.use('/api/auth', require('./routes/auth'));
-
-// SPA fallback
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
-  });
-}
-
 // 【白屏修复】全局错误处理 — 防止未捕获异常导致服务崩溃
 app.use((err, req, res, next) => {
   console.error('服务器错误:', err.message);
   res.status(500).json({ error: '服务器内部错误' });
 });
 
+// 路由延迟加载（等数据库就绪后再注册）
+function loadRoutes() {
+  app.use('/api/plans', require('./routes/plans'));
+  app.use('/api/checkins', require('./routes/checkins'));
+  app.use('/api/upload', require('./routes/upload'));
+  app.use('/api/config', require('./routes/config'));
+  app.use('/api/ai', require('./routes/ai'));
+  app.use('/api/reminders', require('./routes/reminders'));
+  app.use('/api/partners', require('./routes/partners'));
+  app.use('/api/auth', require('./routes/auth'));
+
+  // SPA fallback
+  if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+    });
+  }
+}
+
 // ==================== 启动 ====================
 async function startServer() {
   // 等数据库初始化完成
   await db.initPromise;
+  // 加载路由（此时数据库已就绪，路由中的 db.prepare() 不会报错）
+  loadRoutes();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log('');
