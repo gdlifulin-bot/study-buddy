@@ -1,10 +1,10 @@
 {
   "build": {
     "builder": "nixpacks",
-    "buildCommand": "cd server && npm install"
+    "root": "server"
   },
   "deploy": {
-    "startCommand": "cd server && npm start",
+    "startCommand": "node index.js",
     "healthcheckPath": "/api/config"
   }
 }
