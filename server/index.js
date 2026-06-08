@@ -11,7 +11,7 @@ const cors = require('cors');
 const path = require('path');
 
 // 初始化数据库（含表结构安全检查）
-require('./db');
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -70,17 +70,27 @@ app.use((err, req, res, next) => {
 });
 
 // ==================== 启动 ====================
-app.listen(PORT, '0.0.0.0', () => {
-  console.log('');
-  console.log('  考研搭子 · 服务器已启动');
-  console.log('  ────────────────────────');
-  console.log(`  本地:     http://localhost:${PORT}`);
-  console.log(`  局域网:   http://${getLocalIP()}:${PORT}`);
-  console.log(`  数据库:   D:/study-buddy data/studybuddy.db`);
-  console.log('');
+async function startServer() {
+  // 等数据库初始化完成
+  await db.initPromise;
 
-  // 启动自动提醒定时器
-  startAutoReminder();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log('');
+    console.log('  考研搭子 · 服务器已启动');
+    console.log('  ────────────────────────');
+    console.log(`  本地:     http://localhost:${PORT}`);
+    console.log(`  局域网:   http://${getLocalIP()}:${PORT}`);
+    console.log(`  数据库:   ${require('path').join(process.env.DB_DIR || 'D:/study-buddy data', 'studybuddy.db')}`);
+    console.log('');
+
+    // 启动自动提醒定时器
+    startAutoReminder();
+  });
+}
+
+startServer().catch(err => {
+  console.error('服务器启动失败:', err);
+  process.exit(1);
 });
 
 function getLocalIP() {
