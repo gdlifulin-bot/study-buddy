@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://study-buddy-api.railway.app/api/$1" },
+    { "source": "/uploads/(.*)", "destination": "https://study-buddy-api.railway.app/uploads/$1" },
+    { "source": "/((?!api|uploads).*)", "destination": "/index.html" }
+  ]
+}

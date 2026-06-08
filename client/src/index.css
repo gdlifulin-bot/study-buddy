@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==================== 全局样式 ==================== */
+/* 【可配置】修改此文件调整全局基础样式 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  /* 系统默认字体，中文优先 PingFang SC */
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #1d1d1f;
+  background: #ffffff;
+}
+
+/* 滚动条 — 极简细条 */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d1d6;
+  border-radius: 2px;
+}
+
+/* 禁止移动端长按菜单 */
+* {
+  -webkit-touch-callout: none;
+}
+
+/* 链接重置 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 输入框全局 reset */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Tailwind utility extensions */
+@layer utilities {
+  /* 毛玻璃效果 */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  /* 文字选中色 */
+  .selection-apple ::selection {
+    background: rgba(0, 113, 227, 0.2);
+  }
+}
+
+/* 首页动态气泡动画 */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out;
+}
+
+/* 热力图过渡 */
+.heatmap-cell {
+  transition: background-color 0.3s ease;
+}
