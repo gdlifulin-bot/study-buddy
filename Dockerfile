@@ -10,7 +10,6 @@ RUN npm install
 
 COPY server/ .
 
-ENV PORT=3001
 ENV DB_DIR=/data
 ENV NODE_ENV=production
 
