@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://study-buddy-production-853c.up.railway.app/api/$1" },
-    { "source": "/uploads/(.*)", "destination": "https://study-buddy-production-853c.up.railway.app/uploads/$1" },
+    { "source": "/api/(.*)", "destination": "https://study-buddy-production-1cec.up.railway.app/api/$1" },
+    { "source": "/uploads/(.*)", "destination": "https://study-buddy-production-1cec.up.railway.app/uploads/$1" },
     { "source": "/((?!api|uploads).*)", "destination": "/index.html" }
   ]
 }
