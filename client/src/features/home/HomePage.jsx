@@ -65,8 +65,8 @@ export default function HomePage() {
       <div className="relative z-10 flex h-full flex-col justify-between p-6">
         {/* 【修改 2026-06-08】左上角：日期 + 【新增】考研倒计时 */}
         <div className="absolute top-8 left-6">
-          <p className="text-[10vh] font-normal leading-none tracking-[0.05em] text-white/85">
-            {new Date().toLocaleDateString('zh-CN', {
+          <p className="text-[5vh] font-extralight leading-none tracking-[0.12em] text-white/85 uppercase">
+            {new Date().toLocaleDateString('en-US', {
               month: 'long',
               day: 'numeric',
               weekday: 'long'
