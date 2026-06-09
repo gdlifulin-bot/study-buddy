@@ -53,7 +53,7 @@ router.get('/pending', (req, res) => {
 
     const unread = stmtSelectUnread.all(userId);
 
-    // 标记为已读
+    // 标记为已读（仅标记当前用户的提醒）
     if (unread.length > 0) {
       for (const r of unread) {
         stmtMarkRead.run(r.id);

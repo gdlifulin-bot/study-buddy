@@ -1,15 +1,14 @@
 /**
- * 全局配置 API
- * 管理背景图、用户偏好等全局设置
- *
- * 数据模型：config 表 (key-value)
+ * 用户配置 API（per-user 隔离）
+ * GET  /api/config?userId=xxx — 获取用户配置（合并全局默认）
+ * PUT  /api/config           — 更新用户配置 { userId, ...kv }
+ * POST /api/config/background — 更新背景设置 { userId, backgroundType, customBackgroundUrl }
  */
 
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// 默认配置
 const DEFAULTS = {
   backgroundType: 'default',
   customBackgroundUrl: null,
@@ -17,57 +16,63 @@ const DEFAULTS = {
 };
 
 // 预编译 SQL
-const stmtSelectAll = db.prepare('SELECT key, value FROM config');
-const stmtUpsert = db.prepare('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)');
+const stmtSelectUser = db.prepare('SELECT key, value FROM config WHERE user_id = ?');
+const stmtSelectGlobal = db.prepare("SELECT key, value FROM config WHERE user_id = ''");
+const stmtUpsert = db.prepare(
+  'INSERT OR REPLACE INTO config (key, user_id, value) VALUES (?, ?, ?)'
+);
 
-// 从数据库构建配置对象
-function buildConfig() {
-  const rows = stmtSelectAll.all();
+function buildConfig(userId) {
+  // 全局默认 + 数据库全局默认 + 用户覆盖
   const config = { ...DEFAULTS };
 
-  for (const row of rows) {
-    let val = row.value;
-
-    // 将空字符串转回 null（数据库不支持 null 存储）
-    if (val === '') val = null;
-
-    config[row.key] = val;
+  // 1. 加载全局默认（user_id = ''）
+  const globalRows = stmtSelectGlobal.all();
+  for (const row of globalRows) {
+    config[row.key] = row.value === '' ? null : row.value;
   }
 
-  // examDate 和 backgroundType 需要确保类型正确
-  if (config.examDate && typeof config.examDate === 'string') {
-    // 保持字符串格式，和原来的 JSON 文件一致
+  // 2. 加载用户配置（覆盖全局）
+  if (userId) {
+    const userRows = stmtSelectUser.all(userId);
+    for (const row of userRows) {
+      config[row.key] = row.value === '' ? null : row.value;
+    }
   }
 
   return config;
 }
 
-// GET /api/config — 获取配置
+// GET /api/config?userId=xxx
 router.get('/', (req, res) => {
-  const config = buildConfig();
-  res.json(config);
+  const userId = req.query.userId || '';
+  res.json(buildConfig(userId));
 });
 
-// PUT /api/config — 更新配置
+// PUT /api/config — body: { userId, key1: val1, key2: val2, ... }
 router.put('/', (req, res) => {
-  for (const [key, value] of Object.entries(req.body)) {
-    stmtUpsert.run(key, String(value ?? ''));
+  const { userId, ...entries } = req.body;
+  if (!userId) return res.status(400).json({ error: '缺少 userId' });
+
+  for (const [key, value] of Object.entries(entries)) {
+    if (key === 'userId') continue;
+    stmtUpsert.run(key, userId, String(value ?? ''));
   }
-  const config = buildConfig();
-  res.json(config);
+  res.json(buildConfig(userId));
 });
 
-// POST /api/config/background — 单独更新背景设置
+// POST /api/config/background — body: { userId, backgroundType, customBackgroundUrl }
 router.post('/background', (req, res) => {
-  const { backgroundType, customBackgroundUrl } = req.body;
+  const { userId, backgroundType, customBackgroundUrl } = req.body;
+  if (!userId) return res.status(400).json({ error: '缺少 userId' });
+
   if (backgroundType !== undefined) {
-    stmtUpsert.run('backgroundType', backgroundType);
+    stmtUpsert.run('backgroundType', userId, backgroundType);
   }
   if (customBackgroundUrl !== undefined) {
-    stmtUpsert.run('customBackgroundUrl', String(customBackgroundUrl ?? ''));
+    stmtUpsert.run('customBackgroundUrl', userId, String(customBackgroundUrl ?? ''));
   }
-  const config = buildConfig();
-  res.json(config);
+  res.json(buildConfig(userId));
 });
 
 module.exports = router;

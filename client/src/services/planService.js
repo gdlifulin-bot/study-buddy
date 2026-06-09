@@ -15,10 +15,10 @@ export const planService = {
     api.post('/plans', planData),
 
   // 更新某一天的任务
-  updateDayTasks: (planId, day, tasks) =>
-    api.put(`/plans/${planId}/day/${day}`, { tasks }),
+  updateDayTasks: (planId, day, tasks, userId) =>
+    api.put(`/plans/${planId}/day/${day}`, { tasks, userId }),
 
   // 删除月度计划
-  deletePlan: (planId) =>
-    api.delete(`/plans/${planId}`)
+  deletePlan: (planId, userId) =>
+    api.delete(`/plans/${planId}?userId=${userId}`)
 };

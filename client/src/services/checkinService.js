@@ -16,6 +16,6 @@ export const checkinService = {
     api.post('/checkins', data),
 
   // 删除打卡
-  deleteCheckin: (id) =>
-    api.delete(`/checkins/${id}`)
+  deleteCheckin: (id, userId) =>
+    api.delete(`/checkins/${id}?userId=${userId}`)
 };

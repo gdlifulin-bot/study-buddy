@@ -19,18 +19,18 @@ export default function SettingsPage() {
   const [examDate, setExamDate] = useState(EXAM_DATE);  // 【新增】考研日期状态
   const [examSaved, setExamSaved] = useState(false);
 
-  // 【新增】加载当前考研日期
+  // 加载当前考研日期（per-user）
   useEffect(() => {
-    api.get('/config').then(config => {
+    api.get(`/config?userId=${currentUser.id}`).then(config => {
       if (config.examDate) setExamDate(config.examDate);
     }).catch(() => {});
-  }, []);
+  }, [currentUser.id]);
 
-  // 【新增】保存考研日期
+  // 保存考研日期（per-user）
   const handleExamDateChange = async (value) => {
     setExamDate(value);
     try {
-      await api.put('/config', { examDate: value });
+      await api.put('/config', { examDate: value, userId: currentUser.id });
       setExamSaved(true);
       setTimeout(() => setExamSaved(false), 1500);
     } catch (e) { /* ignore */ }

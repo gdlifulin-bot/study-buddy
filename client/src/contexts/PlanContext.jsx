@@ -63,7 +63,7 @@ export function PlanProvider({ children }) {
     });
     try {
       if (planRef.current?.id) {
-        await planService.updateDayTasks(planRef.current.id, day, sorted);
+        await planService.updateDayTasks(planRef.current.id, day, sorted, currentUser.id);
       }
     } catch (e) {
       console.error('保存任务失败:', e);

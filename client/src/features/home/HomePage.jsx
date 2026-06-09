@@ -21,16 +21,16 @@ export default function HomePage() {
   const [bgType, setBgType] = useState('default');
   const [examDate, setExamDate] = useState(EXAM_DATE);  // 【新增】考研日期，从后端读取
 
-  // 加载背景配置 + 考研日期
+  // 加载背景配置 + 考研日期（per-user）
   useEffect(() => {
-    api.get('/config').then(config => {
+    api.get(`/config?userId=${currentUser.id}`).then(config => {
       setBgType(config.backgroundType || 'default');
       if (config.backgroundType === 'custom' && config.customBackgroundUrl) {
         setBgUrl(config.customBackgroundUrl);
       }
-      // 【新增】读取考研日期
       if (config.examDate) setExamDate(config.examDate);
     }).catch(() => {});
+  }, [currentUser.id]);
   }, []);
 
   // 【新增】计算考研倒计时天数

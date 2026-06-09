@@ -108,8 +108,10 @@ function _createTables(database) {
   `);
   database.run(`
     CREATE TABLE IF NOT EXISTS config (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL
+      key TEXT NOT NULL,
+      user_id TEXT NOT NULL DEFAULT '',
+      value TEXT NOT NULL,
+      PRIMARY KEY (key, user_id)
     )
   `);
   database.run(`
@@ -151,7 +153,7 @@ function _createTables(database) {
     )
   `);
 
-  // 默认配置
+  // 默认配置（全局默认，user_id 为空字符串）
   const defaults = [
     ['backgroundType', 'default'],
     ['customBackgroundUrl', 'null'],
@@ -159,9 +161,10 @@ function _createTables(database) {
   ];
   for (const [key, value] of defaults) {
     database.run(
-      'INSERT OR IGNORE INTO config (key, value) VALUES (?, ?)',
-      [key, String(value ?? '')]
+      'INSERT OR IGNORE INTO config (key, user_id, value) VALUES (?, ?, ?)',
+      [key, '', String(value ?? '')]
     );
+  }
   }
 }
 

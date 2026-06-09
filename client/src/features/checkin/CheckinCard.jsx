@@ -10,20 +10,18 @@ export default function CheckinCard({ checkin, onDelete }) {
   const dateLabel = formatDate(checkin.date);
 
   return (
-    <div className="border-b border-apple-border py-4 last:border-b-0">
+    <div className="border-b border-apple-border py-2.5 last:border-b-0">
       {/* 顶部信息行 */}
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* 科目色点 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
           <span
-            className="inline-block h-2 w-2 rounded-full"
+            className="inline-block h-1.5 w-1.5 rounded-full"
             style={{ backgroundColor: subject?.color || '#86868b' }}
           />
           <span className="text-xs font-medium text-apple-black">{subject?.label}</span>
-          <span className="text-xs text-apple-gray">{dateLabel}</span>
-          {/* 【新增】学习时长显示 */}
+          <span className="text-[11px] text-apple-gray">{dateLabel}</span>
           {checkin.duration > 0 && (
-            <span className="text-xs text-[#86868b]">
+            <span className="text-[11px] text-[#86868b]">
               {formatDuration(checkin.duration)}
             </span>
           )}
@@ -31,7 +29,7 @@ export default function CheckinCard({ checkin, onDelete }) {
         {onDelete && (
           <button
             onClick={() => onDelete(checkin.id)}
-            className="text-xs text-gray-400 hover:text-red-500"
+            className="text-[11px] text-gray-400 hover:text-red-500"
           >
             删除
           </button>
@@ -40,20 +38,20 @@ export default function CheckinCard({ checkin, onDelete }) {
 
       {/* 文字内容 */}
       {checkin.content && (
-        <p className="mb-3 text-sm leading-relaxed text-apple-black">
+        <p className="mt-1 text-sm leading-snug text-apple-black">
           {checkin.content}
         </p>
       )}
 
       {/* 图片 */}
       {checkin.images?.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
           {checkin.images.map(url => (
             <a key={url} href={url} target="_blank" rel="noopener noreferrer">
               <img
                 src={url}
                 alt="打卡图片"
-                className="h-24 w-24 rounded-apple object-cover transition hover:opacity-80"
+                className="h-16 w-16 rounded-lg object-cover transition hover:opacity-80"
               />
             </a>
           ))}

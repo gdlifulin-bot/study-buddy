@@ -193,7 +193,7 @@ export default function CheckinPage() {
       <div className="flex-1 overflow-y-auto px-5">
         <CheckinHistory
           checkins={checkins}
-          onDelete={viewUser === currentUser.id ? removeCheckin : null}
+          onDelete={viewUser === currentUser.id ? (id) => removeCheckin(id, currentUser.id) : null}
         />
       </div>
     </div>

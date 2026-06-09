@@ -128,11 +128,17 @@ function calcUserStats(userId, dates) {
 
 // ==================== 路由 ====================
 
-// GET /compare — 学习数据对比
+// GET /compare — 学习数据对比（需验证配对关系）
 router.get('/compare', (req, res) => {
   try {
     const { user1, user2, period = 'week' } = req.query;
     if (!user1 || !user2) return res.status(400).json({ error: '缺少 user1/user2' });
+
+    // 验证两人已配对
+    const pair = db.prepare(
+      'SELECT * FROM pairs WHERE (user1_username = ? AND user2_username = ?) OR (user1_username = ? AND user2_username = ?)'
+    ).get(user1, user2, user2, user1);
+    if (!pair) return res.status(403).json({ error: '两人未组队，无法对比' });
 
     const range = getDateRange(period);
     const dates = datesBetween(range.start, range.end);
@@ -292,9 +298,12 @@ router.get('/notifications', (req, res) => {
   }
 });
 
-// POST /notifications/read/:id — 标记已读
+// POST /notifications/read/:id — 标记已读（验证归属）
 router.post('/notifications/read/:id', (req, res) => {
   try {
+    const row = db.prepare('SELECT user_id FROM notifications WHERE id = ?').get(req.params.id);
+    if (!row) return res.status(404).json({ error: '通知不存在' });
+    if (row.user_id !== req.body.userId) return res.status(403).json({ error: '无权操作' });
     db.prepare('UPDATE notifications SET read = 1 WHERE id = ?').run(req.params.id);
     res.json({ success: true });
   } catch (e) {

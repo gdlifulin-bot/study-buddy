@@ -284,7 +284,7 @@ export default function ReportPage() {
       {mode === 'compare' && partner && (
         <CompareView
           user1={currentUser.id}
-          user2={viewUser}
+          user2={partner.id}
           user1Name={currentUser.name}
           user2Name={partner.name}
           period={view}

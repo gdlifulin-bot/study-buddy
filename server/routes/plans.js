@@ -84,10 +84,11 @@ router.post('/', (req, res) => {
 // PUT /api/plans/:planId/day/:day — 更新某一天的任务列表
 router.put('/:planId/day/:day', (req, res) => {
   const { planId, day } = req.params;
-  const { tasks } = req.body;
+  const { tasks, userId } = req.body;
 
   const row = findPlanById.get(planId);
   if (!row) return res.status(404).json({ error: '计划不存在' });
+  if (row.user_id !== userId) return res.status(403).json({ error: '无权修改他人计划' });
 
   const days = JSON.parse(row.days || '{}');
   days[day] = { tasks: tasks || [] };
@@ -100,6 +101,9 @@ router.put('/:planId/day/:day', (req, res) => {
 
 // DELETE /api/plans/:planId — 删除整个月度计划
 router.delete('/:planId', (req, res) => {
+  const row = findPlanById.get(req.params.planId);
+  if (!row) return res.status(404).json({ error: '计划不存在' });
+  if (row.user_id !== req.query.userId) return res.status(403).json({ error: '无权删除他人计划' });
   deletePlan.run(req.params.planId);
   res.json({ success: true });
 });

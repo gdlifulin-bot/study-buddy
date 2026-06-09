@@ -8,14 +8,16 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { uploadService } from '../../services/uploadService';
+import { useUser } from '../../contexts/UserContext';
 
 export default function BackgroundPicker({ onClose }) {
+  const { currentUser } = useUser();
   const [bgType, setBgType] = useState('default');
   const [customUrl, setCustomUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    api.get('/config').then(config => {
+    api.get(`/config?userId=${currentUser.id}`).then(config => {
       setBgType(config.backgroundType || 'default');
       setCustomUrl(config.customBackgroundUrl || null);
     }).catch(() => {});
@@ -23,7 +25,7 @@ export default function BackgroundPicker({ onClose }) {
 
   // 切换为默认背景
   const setDefault = async () => {
-    await api.post('/config/background', { backgroundType: 'default' });
+    await api.post('/config/background', { backgroundType: 'default', userId: currentUser.id });
     setBgType('default');
     onClose?.();
     window.location.reload();
@@ -38,6 +40,7 @@ export default function BackgroundPicker({ onClose }) {
       const result = await uploadService.uploadFile(file);
       const url = result.url;
       await api.post('/config/background', {
+        userId: currentUser.id,
         backgroundType: 'custom',
         customBackgroundUrl: url
       });
@@ -73,7 +76,7 @@ export default function BackgroundPicker({ onClose }) {
           {customUrl && (
             <button
               onClick={() => {
-                api.post('/config/background', { backgroundType: 'custom', customBackgroundUrl: customUrl });
+                api.post('/config/background', { backgroundType: 'custom', customBackgroundUrl: customUrl, userId: currentUser.id });
                 onClose?.();
                 window.location.reload();
               }}

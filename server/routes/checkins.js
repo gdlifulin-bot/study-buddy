@@ -40,18 +40,14 @@ const deleteCheckin = db.prepare('DELETE FROM checkins WHERE id = ?');
 
 // ==================== 路由 ====================
 
-// GET /api/checkins?userId=&date=&subject= — 查询打卡记录（按条件筛选）
+// GET /api/checkins?userId=&date=&subject= — 查询打卡记录（userId 必填）
 router.get('/', (req, res) => {
   const { userId, date, subject } = req.query;
 
-  // 动态构建查询（参数化，防止注入）
-  const conditions = [];
-  const params = [];
+  if (!userId) return res.status(400).json({ error: '缺少 userId 参数' });
 
-  if (userId) {
-    conditions.push('user_id = ?');
-    params.push(userId);
-  }
+  const conditions = ['user_id = ?'];
+  const params = [userId];
   if (date) {
     conditions.push('date = ?');
     params.push(date);
@@ -156,8 +152,11 @@ router.get('/streak', (req, res) => {
   res.json({ streak, longestStreak });
 });
 
-// DELETE /api/checkins/:id — 删除打卡
+// DELETE /api/checkins/:id — 删除打卡（需验证归属）
 router.delete('/:id', (req, res) => {
+  const row = db.prepare('SELECT * FROM checkins WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: '打卡不存在' });
+  if (row.user_id !== req.query.userId) return res.status(403).json({ error: '无权删除他人打卡' });
   deleteCheckin.run(req.params.id);
   res.json({ success: true });
 });
