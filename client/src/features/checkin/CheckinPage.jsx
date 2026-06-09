@@ -66,7 +66,7 @@ export default function CheckinPage() {
 
   // 切换用户时重置热力图选中
   useEffect(() => {
-    setHeatmapActiveDate(null);
+    setShowHeatmap(false);
   }, [viewUser]);
 
   // 提交打卡
