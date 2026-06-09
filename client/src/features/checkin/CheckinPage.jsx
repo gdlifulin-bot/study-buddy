@@ -30,7 +30,7 @@ export default function CheckinPage() {
   const [reminderSent, setReminderSent] = useState(false);
   const [streakData, setStreakData] = useState({ streak: 0, longestStreak: 0 });
   const [heatmapData, setHeatmapData] = useState({});
-  const [heatmapActiveDate, setHeatmapActiveDate] = useState(null);
+  const [showHeatmap, setShowHeatmap] = useState(false);
 
   // 同步 URL 参数到 activeSubject
   useEffect(() => {
@@ -174,19 +174,25 @@ export default function CheckinPage() {
         </div>
       )}
 
-      {/* 本月打卡热力图 */}
-      <div className="shrink-0 px-5 py-3 border-t border-[#e5e5e7]">
-        <p className="text-xs text-[#86868b] mb-2">本月打卡日历</p>
-        <CheckinHeatmap
-          heatmapData={heatmapData}
-          year={new Date().getFullYear()}
-          month={new Date().getMonth() + 1}
-          activeDate={heatmapActiveDate}
-          onDayClick={(dateStr) => {
-            setHeatmapActiveDate(dateStr);
-            fetchCheckins({ userId: viewUser, subject: activeSubject, date: dateStr });
-          }}
-        />
+      {/* 本月打卡热力图 — 可折叠 */}
+      <div className="shrink-0 px-5 py-2 border-t border-[#e5e5e7]">
+        <button
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          className="flex items-center gap-1 text-xs text-[#86868b] hover:text-[#1d1d1f] py-1"
+        >
+          <span>{showHeatmap ? '▾' : '▸'}</span>
+          本月打卡日历
+        </button>
+        {showHeatmap && (
+          <div className="max-w-[280px] pb-2">
+            <CheckinHeatmap
+              heatmapData={heatmapData}
+              year={new Date().getFullYear()}
+              month={new Date().getMonth() + 1}
+              onDayClick={() => {}}
+            />
+          </div>
+        )}
       </div>
 
       {/* 打卡记录列表 */}

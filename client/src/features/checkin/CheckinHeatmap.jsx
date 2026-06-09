@@ -73,7 +73,7 @@ export default function CheckinHeatmap({ heatmapData = {}, year, month, onDayCli
                 <button
                   key={cell.dateStr}
                   onClick={() => onDayClick?.(cell.dateStr)}
-                  className={`aspect-square rounded-[3px] ${getColor(cell.count)} transition hover:ring-2 hover:ring-blue-300 ${isActive ? 'ring-2 ring-[#1d1d1f]' : ''}`}
+                  className={`w-full max-w-[36px] aspect-square rounded-[3px] ${getColor(cell.count)} transition hover:ring-2 hover:ring-blue-300 ${isActive ? 'ring-2 ring-[#1d1d1f]' : ''}`}
                   title={`${cell.dateStr}: ${cell.count} 科打卡`}
                 />
               );
