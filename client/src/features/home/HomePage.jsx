@@ -31,9 +31,8 @@ export default function HomePage() {
       if (config.examDate) setExamDate(config.examDate);
     }).catch(() => {});
   }, [currentUser.id]);
-  }, []);
 
-  // 【新增】计算考研倒计时天数
+  // 计算考研倒计时天数
   const examDateObj = new Date(examDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
