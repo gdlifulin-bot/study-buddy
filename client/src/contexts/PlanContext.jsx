@@ -68,7 +68,7 @@ export function PlanProvider({ children }) {
     } catch (e) {
       console.error('保存任务失败:', e);
     }
-  }, []); // 空依赖 — 不依赖 plan
+  }, [currentUser.id]);
 
   // 切换月份
   const goToMonth = useCallback((y, m) => {
