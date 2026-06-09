@@ -106,14 +106,26 @@ function _createTables(database) {
       created_at TEXT DEFAULT (datetime('now'))
     )
   `);
-  database.run(`
-    CREATE TABLE IF NOT EXISTS config (
-      key TEXT NOT NULL,
-      user_id TEXT NOT NULL DEFAULT '',
-      value TEXT NOT NULL,
-      PRIMARY KEY (key, user_id)
-    )
-  `);
+  // config 表 — 支持 per-user（自动迁移旧数据）
+  try {
+    // 尝试用新 schema 的查询来检测是否已迁移
+    database.run("SELECT user_id FROM config LIMIT 0");
+  } catch {
+    // 旧表没有 user_id 列 → 迁移
+    let oldData = [];
+    try {
+      const res = database.exec('SELECT key, value FROM config');
+      if (res.length > 0 && res[0]?.values) {
+        for (const row of res[0].values) oldData.push([row[0], row[1]]);
+      }
+    } catch {}
+    database.run('DROP TABLE IF EXISTS config');
+    database.run('CREATE TABLE config (key TEXT NOT NULL, user_id TEXT NOT NULL DEFAULT \'\', value TEXT NOT NULL, PRIMARY KEY (key, user_id))');
+    for (const [k, v] of oldData) {
+      database.run('INSERT OR REPLACE INTO config (key, user_id, value) VALUES (?, ?, ?)', [k, '', v]);
+    }
+  }
+
   database.run(`
     CREATE TABLE IF NOT EXISTS reminders (
       id TEXT PRIMARY KEY,
