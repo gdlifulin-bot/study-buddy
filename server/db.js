@@ -177,7 +177,6 @@ function _createTables(database) {
       [key, '', String(value ?? '')]
     );
   }
-  }
 }
 
 // ==================== 兼容 better-sqlite3 API ====================
